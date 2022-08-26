@@ -217,69 +217,11 @@ bool EphysSocket::updateBuffer()
             return false;
         }
 
-        // Transpose because the chunkSize argument in addToBuffer does not seem to do anything
-        if (false)
+        for (int i = 0; i < num_samp * num_channels; i++)
         {
-            int k = 0;
-            for (int i = 0; i < num_samp; i++)
-            {
-                for (int j = 0; j < num_channels; j++)
-                {
-                    convbuf[k++] = data_scale * (float)(recvbuf[j * num_samp + i] - data_offset);
-                }
-                timestamps.set(i, total_samples + i);
-            }
-        }
-        else
-        {
-            int k = 0;
-            // if (first)
-            // {
-            //     std::cout << "FIRST" << std::endl;
-            //     lastTimestamp = (int64)recvbuf[4];
-            //     first = false;
-            // }
-            // else
-            // {
-            //     int64 diff = (int64)recvbuf[4] - lastTimestamp;
-            //     std::cout << "GET DIFF : " << diff << std::endl;
-            //     if (diff > 20)
-            //     {
-            //         for (int x = 0; x < diff; x++)
-            //         {
-            //             for (int y = 0; y < num_channels; y++)
-            //             {
-            //                 convbuf[k++] = 0;
-            //             }
-            //             timestamps.set(x, total_samples + x);
-            //         }
-            //         total_samples += diff; 
-            //         // std::cout << "ZERO PADDING : " << diff << "Samples" << std::endl;
-            //     }
-            // }
-
-            // for (int i = 0; i < num_samp; i++)
-            // {
-            //     for (int j = 0; j < num_channels; j++)
-            //     {
-            //         // timestamps.set(k, (int64)(recvbuf[(i * num_channels) + 1])/48000*(int)sample_rate/1000);
-            //         // timestamps.set(k, (int64)(recvbuf[(i * num_channels) + 4]));
-                    
-            //         if (j < num_channels - 2)
-            //             convbuf[k++] = data_scale * (float)(recvbuf[(i * num_channels) + (j + 2)] - data_offset);
-            //         else
-            //             convbuf[k++] = (float)(recvbuf[(i * num_channels) + (j - num_channels - 2)]);
-            //     }
-            //     timestamps.set(i, (int64)(recvbuf[(i * num_channels) + 4]));
-            //     // timestamps.set(i, total_samples+i);
-            // }
-
-            for (int i = 0; i < num_samp * num_channels; i++)
-            {
-                // convbuf[i] = data_scale * (float)(recvbuf[i] - data_offset);
-                convbuf[i] = (float)(recvbuf[i] - data_offset);
-                timestamps.set(i, total_samples + i);
-            }
+            // convbuf[i] = data_scale * (float)(recvbuf[i] - data_offset);
+            convbuf[i] = (float)(recvbuf[i] - data_offset);
+            timestamps.set(i, total_samples + i);
         }
 
         sourceBuffers[0]->addToBuffer(convbuf,
