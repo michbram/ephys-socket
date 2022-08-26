@@ -42,6 +42,10 @@ namespace EphysSocketNode
         // Button that tried to connect to client
         ScopedPointer<UtilityButton> connectButton;
 
+        // IP address to send message into
+        ScopedPointer<Label> ipLabel;
+        ScopedPointer<Label> ipInput;
+
         // Port
         ScopedPointer<Label> portLabel;
         ScopedPointer<Label> portInput;

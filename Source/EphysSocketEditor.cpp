@@ -10,14 +10,30 @@ EphysSocketEditor::EphysSocketEditor(GenericProcessor* parentNode, EphysSocket *
 {
     node = socket;
 
-    desiredWidth = 240;
+    desiredWidth = 320;
 
     // Add connect button
     connectButton = new UtilityButton("CONNECT", Font("Small Text", 12, Font::bold));
     connectButton->setRadius(3.0f);
-    connectButton->setBounds(10, 35, 70, 20);
+    connectButton->setBounds(235, 50, 70, 20);
     connectButton->addListener(this);
     addAndMakeVisible(connectButton);
+
+    // IP address
+    ipLabel = new Label("IP", "IP");
+    ipLabel->setFont(Font("Small Text", 10, Font::plain));
+    ipLabel->setBounds(5, 30, 65, 8);
+    ipLabel->setColour(Label::textColourId, Colours::darkgrey);
+    addAndMakeVisible(ipLabel);
+
+    ipInput = new Label("IP", "Input IP addr.");
+    ipInput->setFont(Font("Small Text", 10, Font::plain));
+    ipInput->setColour(Label::backgroundColourId, Colours::lightgrey);
+    ipInput->setEditable(true);
+    ipInput->addListener(this);
+    ipInput->setBounds(10, 40, 65, 15);
+    addAndMakeVisible(ipInput);
+
 
     // Port
     portLabel = new Label("Port", "Port");
@@ -133,8 +149,18 @@ EphysSocketEditor::EphysSocketEditor(GenericProcessor* parentNode, EphysSocket *
 
 void EphysSocketEditor::labelTextChanged(Label* label)
 {
+    if (label == ipInput)
+    {
+        std::cout << "Label text changed" << std::endl;
 
-    if (label == channelCountInput)
+        // TODO: check if input is correct ip address. How?
+        
+        String ipaddr = ipInput->getText();
+        std::cout << "IP address" << std::endl;
+        node->ipaddr = ipaddr;
+        CoreServices::updateSignalChain(this);
+    }
+    else if (label == channelCountInput)
     {
 
         std::cout << "Label text changed" << std::endl;
@@ -218,6 +244,7 @@ void EphysSocketEditor::labelTextChanged(Label* label)
 void EphysSocketEditor::startAcquisition()
 {
     // Disable the whole gui
+    ipInput->setEnabled(false);
     portInput->setEnabled(false);
     channelCountInput->setEnabled(false);
     sampleRateInput->setEnabled(false);
@@ -238,6 +265,7 @@ void EphysSocketEditor::startAcquisition()
 void EphysSocketEditor::stopAcquisition()
 {
     // Reenable the whole gui
+    ipInput->setEnabled(true);
     portInput->setEnabled(true);
     channelCountInput->setEnabled(true);
     sampleRateInput->setEnabled(true);
@@ -263,6 +291,7 @@ void EphysSocketEditor::saveCustomParameters(XmlElement* xmlNode)
 {
     XmlElement* parameters = xmlNode->createNewChildElement("PARAMETERS");
 
+    parameters->setAttribute("ipaddr", ipInput->getText());
     parameters->setAttribute("port", portInput->getText());
     parameters->setAttribute("numchan", channelCountInput->getText());
     parameters->setAttribute("numsamp", bufferSizeInput->getText());
@@ -277,6 +306,9 @@ void EphysSocketEditor::loadCustomParameters(XmlElement* xmlNode)
     {
         if (subNode->hasTagName("PARAMETERS"))
         {
+            ipInput->setText(subNode->getStringAttribute("ipaddr", ""), dontSendNotification);
+            node->ipaddr = subNode->getStringAttribute("ipaddr", "");
+
             portInput->setText(subNode->getStringAttribute("port", ""), dontSendNotification);
             node->port = subNode->getIntAttribute("port", DEFAULT_PORT);
 

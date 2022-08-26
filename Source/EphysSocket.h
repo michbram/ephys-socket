@@ -28,6 +28,7 @@ namespace EphysSocketNode
         int getNumChannels() const;
 
         // User defined
+        String ipaddr;
         int port;
         float sample_rate;
         float data_scale;
@@ -40,21 +41,22 @@ namespace EphysSocketNode
         float relative_sample_rate;
 
         void resizeChanSamp();
-        void tryToConnect();
+        bool tryToConnect();
+        bool writeCommand(int command);
 
         GenericEditor* createEditor(SourceNode* sn);
         static DataThread* createDataThread(SourceNode* sn);
 
     private:
-
         bool updateBuffer() override;
         bool startAcquisition() override;
-        bool stopAcquisition()  override;
+        bool stopAcquisition() override;
         void timerCallback() override;
 
         bool connected = false;
+        bool first = true;
 
-       ScopedPointer<DatagramSocket> socket;
+        ScopedPointer<DatagramSocket> socket;
 
         uint16_t *recvbuf;
         float *convbuf;
